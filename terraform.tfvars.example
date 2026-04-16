@@ -1,0 +1,25 @@
+# AWS IAM Credential Exposure Response System - Configuration Example
+# Copy this file to terraform.tfvars and customize with your values
+
+# REQUIRED: Email address for security team notifications
+security_notification_email = "security-team@example.com"
+
+# OPTIONAL: Override defaults below if needed
+
+# AWS region (us-east-1 recommended for AWS Health events)
+# aws_region = "us-east-1"
+
+# CloudWatch Logs retention (minimum 30 days, recommend 90 for security events)
+# log_retention_days = 90
+
+# Lambda timeout in seconds (60-120 recommended for API calls)
+# lambda_timeout = 120
+
+# Lambda memory allocation in MB
+# lambda_memory_size = 256
+
+# Environment designation
+# environment = "Production"
+
+# DLQ message retention in days (1-14)
+# dlq_retention_days = 14

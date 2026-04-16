@@ -1,0 +1,162 @@
+{
+  "name": "AWS IAM Credential Exposure Response System",
+  "nodes": [
+    {
+      "id": "health",
+      "label": "AWS Health",
+      "x": 330,
+      "y": 0,
+      "subtitle": "Credential Monitoring",
+      "icon": "/icons/aws/management/cloudwatch.png"
+    },
+    {
+      "id": "eventbridge",
+      "label": "EventBridge Rule",
+      "x": 330,
+      "y": 250,
+      "subtitle": "IAM Exposure Filter",
+      "icon": "/icons/aws/integration/eventbridge-rule.png"
+    },
+    {
+      "id": "lambda",
+      "label": "Lambda Function",
+      "x": 330,
+      "y": 500,
+      "subtitle": "iam_leaked_credential_killswitch",
+      "icon": "/icons/aws/compute/lambda.png"
+    },
+    {
+      "id": "iam_role",
+      "label": "IAM Role",
+      "x": 660,
+      "y": 500,
+      "subtitle": "Execution Role",
+      "icon": "/icons/aws/security/identity-and-access-management-iam-role.png"
+    },
+    {
+      "id": "sns",
+      "label": "SNS Topic",
+      "x": 0,
+      "y": 750,
+      "subtitle": "Security Alerts",
+      "icon": "/icons/aws/integration/simple-notification-service-sns-topic.png"
+    },
+    {
+      "id": "logs",
+      "label": "CloudWatch Logs",
+      "x": 330,
+      "y": 750,
+      "subtitle": "Execution Logs",
+      "icon": "/icons/aws/management/cloudwatch-logs.png"
+    },
+    {
+      "id": "dlq",
+      "label": "Dead Letter Queue",
+      "x": 660,
+      "y": 750,
+      "subtitle": "Failed Events",
+      "icon": "/icons/aws/integration/simple-queue-service-sqs-queue.png"
+    },
+    {
+      "id": "alarm_lambda",
+      "label": "CloudWatch Alarm",
+      "x": 0,
+      "y": 1000,
+      "subtitle": "Lambda Errors",
+      "icon": "/icons/aws/management/cloudwatch.png"
+    },
+    {
+      "id": "alarm_dlq",
+      "label": "CloudWatch Alarm",
+      "x": 330,
+      "y": 1000,
+      "subtitle": "DLQ Depth",
+      "icon": "/icons/aws/management/cloudwatch.png"
+    },
+    {
+      "id": "alarm_eb",
+      "label": "CloudWatch Alarm",
+      "x": 660,
+      "y": 1000,
+      "subtitle": "EventBridge Failures",
+      "icon": "/icons/aws/management/cloudwatch.png"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "health",
+      "target": "eventbridge",
+      "label": "AWS_RISK_CREDENTIALS_EXPOSED"
+    },
+    {
+      "id": "e2",
+      "source": "eventbridge",
+      "target": "lambda",
+      "label": "Invoke"
+    },
+    {
+      "id": "e3",
+      "source": "lambda",
+      "target": "iam_role",
+      "label": "AssumeRole",
+      "style": "dashed"
+    },
+    {
+      "id": "e4",
+      "source": "lambda",
+      "target": "sns",
+      "label": "Publish Alert"
+    },
+    {
+      "id": "e5",
+      "source": "lambda",
+      "target": "dlq",
+      "label": "Failed Events",
+      "style": "dashed"
+    },
+    {
+      "id": "e6",
+      "source": "lambda",
+      "target": "logs",
+      "label": "Write Logs"
+    },
+    {
+      "id": "e7",
+      "source": "alarm_lambda",
+      "target": "sns",
+      "label": "Alert",
+      "color": "red"
+    },
+    {
+      "id": "e8",
+      "source": "alarm_dlq",
+      "target": "sns",
+      "label": "Alert",
+      "color": "red"
+    },
+    {
+      "id": "e9",
+      "source": "alarm_eb",
+      "target": "sns",
+      "label": "Alert",
+      "color": "red"
+    }
+  ],
+  "legend": {
+    "edges": [
+      {
+        "label": "Event Flow",
+        "style": "solid"
+      },
+      {
+        "label": "Async/Failure Path",
+        "style": "dashed"
+      },
+      {
+        "label": "Alarm Notification",
+        "color": "red"
+      }
+    ]
+  }
+}
