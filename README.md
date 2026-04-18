@@ -4,6 +4,8 @@ Production-grade automated security response system that detects and immediately
 
 ## Architecture Overview
 
+**View the architecture diagram in the Canvas tab** to see the complete visual layout of all components and their interactions.
+
 This infrastructure implements a fully automated security response pipeline:
 
 1. **AWS Health** detects exposed IAM credentials in public code repositories
