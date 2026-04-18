@@ -4,7 +4,40 @@ Production-grade automated security response system that detects and immediately
 
 ## Architecture Overview
 
-**View the architecture diagram in the Canvas tab** to see the complete visual layout of all components and their interactions.
+```mermaid
+flowchart TD
+    Health[AWS Health<br/>Credential Exposure Detection]
+    EventBridge[EventBridge Rule<br/>AWS_RISK_CREDENTIALS_EXPOSED]
+    Lambda[Lambda Function<br/>Credential Killswitch]
+    IAM[IAM Role<br/>Execution Permissions]
+    SNS[SNS Topic<br/>Security Notifications]
+    DLQ[SQS Dead Letter Queue<br/>Failed Events]
+    Logs[CloudWatch Logs<br/>Audit Trail]
+    AlarmLambda[CloudWatch Alarm<br/>Lambda Errors]
+    AlarmDLQ[CloudWatch Alarm<br/>DLQ Depth]
+    AlarmEB[CloudWatch Alarm<br/>EventBridge Failures]
+
+    Health -->|AWS_RISK_CREDENTIALS_EXPOSED| EventBridge
+    EventBridge -->|Invoke| Lambda
+    Lambda -.->|AssumeRole| IAM
+    Lambda -->|Publish Alert| SNS
+    Lambda -.->|Failed Events| DLQ
+    Lambda -->|Write Logs| Logs
+    AlarmLambda -->|Alert| SNS
+    AlarmDLQ -->|Alert| SNS
+    AlarmEB -->|Alert| SNS
+
+    style Health fill:#FF9900
+    style EventBridge fill:#FF9900
+    style Lambda fill:#FF9900
+    style SNS fill:#FF9900
+    style DLQ fill:#FF9900
+    style Logs fill:#FF9900
+    style IAM fill:#DD344C
+    style AlarmLambda fill:#B7CA9D
+    style AlarmDLQ fill:#B7CA9D
+    style AlarmEB fill:#B7CA9D
+```
 
 This infrastructure implements a fully automated security response pipeline:
 
