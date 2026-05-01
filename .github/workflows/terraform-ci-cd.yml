@@ -1,5 +1,6 @@
 name: Terraform CI/CD
-
+env:
+  AWS_REGION: us-east-1
 on:
   push:
     branches:
