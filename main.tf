@@ -388,3 +388,4 @@ resource "aws_cloudwatch_metric_alarm" "eventbridge_failures" {
     Name = "eventbridge-failures-alarm"
   }
 }
+# Trigger CI/CD pipeline test
