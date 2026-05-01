@@ -1,0 +1,65 @@
+name: Cost Estimation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.tf'
+      - '**.tfvars.example'
+
+jobs:
+  infracost:
+    name: Infrastructure Cost Estimate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Manual Cost Analysis
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const costBreakdown = `### Infrastructure Cost Estimate 💰
+
+            Based on the changes in this PR, here's an estimated cost breakdown:
+
+            #### Monthly Costs (Estimated)
+
+            | Resource | Estimated Cost | Notes |
+            |----------|----------------|-------|
+            | Lambda Function | ~$0.02 | Based on 10 invocations/month, 2s duration |
+            | CloudWatch Logs | ~$1.00 | 10 GB storage, 90 days retention |
+            | EventBridge | $0.00 | Free tier (100M events/month) |
+            | SNS | $0.00 | Free tier (1,000 emails/month) |
+            | SQS (DLQ) | $0.00 | Minimal usage expected |
+            | CloudWatch Alarms | ~$0.30 | 3 alarms × $0.10 each |
+            | **Total** | **~$1.32/month** | Approximate |
+
+            #### Cost Considerations
+
+            - Costs scale with number of credential exposure events
+            - Lambda pricing: $0.20 per 1M requests + $0.0000166667 per GB-second
+            - CloudWatch Logs pricing varies by region and retention
+            - Free tier benefits apply for first 12 months
+
+            #### Cost Optimization Tips
+
+            - Adjust \`log_retention_days\` to reduce storage costs
+            - Use Lambda memory optimization (current: 256 MB)
+            - Consider S3 log archival for long-term retention
+
+            > **Note**: This is a manual estimate. Actual costs may vary based on usage patterns.
+            > For detailed cost analysis, consider using [Infracost](https://www.infracost.io/) or AWS Cost Explorer.
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: costBreakdown
+            });

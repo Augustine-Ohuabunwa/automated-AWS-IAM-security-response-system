@@ -1,0 +1,16 @@
+# Code owners for automated PR review assignments
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @Augustine-Ohuabunwa
+
+# Infrastructure code
+*.tf @Augustine-Ohuabunwa
+*.tfvars @Augustine-Ohuabunwa
+
+# Lambda function
+lambda_function.py @Augustine-Ohuabunwa
+tests/ @Augustine-Ohuabunwa
+
+# CI/CD workflows
+.github/workflows/ @Augustine-Ohuabunwa

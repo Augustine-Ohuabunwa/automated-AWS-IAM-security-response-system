@@ -24,7 +24,7 @@ override.tf.json
 
 # Lambda deployment packages
 *.zip
-lambda_function.py
+# Note: lambda_function.py is now tracked in version control
 
 # Environment files
 .env
@@ -40,3 +40,24 @@ lambda_function.py
 # OS files
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# CI/CD artifacts
+tfplan.binary
+tfplan.txt
+terraform.log

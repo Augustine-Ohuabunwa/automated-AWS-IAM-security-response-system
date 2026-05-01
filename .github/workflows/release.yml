@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREV_TAG" ]; then
+            # First release
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            # Generate changelog since last tag
+            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Save to file for multi-line output
+          echo "$CHANGELOG" > changelog.txt
+
+          # Output for GitHub
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Deployment
+
+            To deploy this release:
+
+            1. Clone the repository at this tag
+            2. Set AWS credentials
+            3. Run `terraform init`
+            4. Run `terraform plan` to review changes
+            5. Run `terraform apply` to deploy
+
+            ## Infrastructure Components
+
+            - AWS Lambda function for IAM credential exposure response
+            - EventBridge rule to capture AWS Health events
+            - SNS topic for security notifications
+            - CloudWatch alarms for monitoring
+            - IAM roles with least-privilege policies
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package Lambda function
+        run: |
+          mkdir -p dist
+          zip -j dist/lambda_function.zip lambda_function.py
+
+      - name: Upload Lambda package to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/lambda_function.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,8 @@
 # AWS IAM Credential Exposure Response System
 
+[![Terraform CI/CD](https://github.com/Augustine-Ohuabunwa/automated-AWS-IAM-security-response-system/actions/workflows/terraform-ci-cd.yml/badge.svg)](https://github.com/Augustine-Ohuabunwa/automated-AWS-IAM-security-response-system/actions/workflows/terraform-ci-cd.yml)
+[![PR Quality Checks](https://github.com/Augustine-Ohuabunwa/automated-AWS-IAM-security-response-system/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/Augustine-Ohuabunwa/automated-AWS-IAM-security-response-system/actions/workflows/pr-checks.yml)
+
 Production-grade automated security response system that detects and immediately disables exposed IAM credentials using AWS Health events, EventBridge, and Lambda.
 
 ## Architecture Overview
@@ -75,6 +78,133 @@ This infrastructure implements a fully automated security response pipeline:
 - AWS CLI configured with appropriate credentials
 - Terraform >= 1.0
 - AWS account with permissions to create IAM roles, Lambda functions, EventBridge rules, SNS topics, and SQS queues
+
+## CI/CD Pipeline
+
+This repository includes a comprehensive GitHub Actions CI/CD pipeline that automatically validates, tests, and deploys infrastructure changes.
+
+### Workflows
+
+#### 1. Terraform CI/CD (`.github/workflows/terraform-ci-cd.yml`)
+
+Runs on every push and pull request:
+
+- **Validation**: Terraform format check, init, and validate
+- **Security Scanning**: tfsec and Checkov security analysis with SARIF reports
+- **Planning**: Terraform plan on pull requests with automatic PR comments
+- **Deployment**: Terraform apply on main branch (auto-deploy)
+- **Lambda Testing**: Automated Python unit tests when Lambda code exists
+
+#### 2. PR Quality Checks (`.github/workflows/pr-checks.yml`)
+
+Additional quality gates for pull requests:
+
+- **Linting**: Python code formatting (black, flake8)
+- **Documentation**: README validation
+- **PR Size Analysis**: Automated size checking with warnings for large PRs
+
+#### 3. Release Automation (`.github/workflows/release.yml`)
+
+Triggered on version tags (e.g., `v1.0.0`):
+
+- **Changelog Generation**: Automatic changelog from git commits
+- **GitHub Release**: Creates release with deployment instructions
+- **Lambda Packaging**: Bundles Lambda function as downloadable ZIP
+
+### Required GitHub Secrets
+
+Configure these secrets in your repository settings:
+
+```
+Settings > Secrets and variables > Actions > New repository secret
+```
+
+| Secret Name | Description | Required For |
+|-------------|-------------|--------------|
+| `AWS_ACCESS_KEY_ID` | AWS access key for Terraform | Deployment |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret access key | Deployment |
+
+### CI/CD Workflow
+
+```
+Pull Request Created
+  |
+  +-- Terraform Validate & Format Check
+  +-- Security Scan (tfsec, Checkov)
+  +-- Python Linting
+  +-- Terraform Plan (commented on PR)
+  +-- PR Size Check
+  |
+  v
+Merge to Main
+  |
+  +-- Terraform Validate
+  +-- Security Scan
+  +-- Terraform Apply (auto-deploy)
+  +-- Lambda Tests
+  |
+  v
+Infrastructure Deployed
+```
+
+### Creating a Release
+
+To create a new release:
+
+```bash
+# Tag the commit
+git tag v1.0.0
+
+# Push the tag
+git push origin v1.0.0
+```
+
+The release workflow will automatically:
+- Generate a changelog
+- Create a GitHub release
+- Package the Lambda function
+- Upload artifacts
+
+### Continuous Deployment
+
+The pipeline automatically deploys changes to AWS when:
+- Code is pushed to the `main` branch
+- All validation and security checks pass
+- AWS credentials are configured in GitHub Secrets
+
+To disable auto-deployment, remove or comment out the `terraform-apply` job in `.github/workflows/terraform-ci-cd.yml`.
+
+### Local Development
+
+Before pushing changes, run these commands locally:
+
+```bash
+# Format Terraform code
+terraform fmt -recursive
+
+# Validate Terraform
+terraform init -backend=false
+terraform validate
+
+# Security scan
+docker run --rm -v "$(pwd):/src" aquasec/tfsec /src
+
+# Python formatting
+black .
+
+# Run tests
+pytest tests/ -v
+```
+
+### Pull Request Process
+
+1. Create a feature branch
+2. Make your changes
+3. Push and create a PR
+4. Review automated checks and Terraform plan in PR comments
+5. Address any security findings or formatting issues
+6. Request manual review
+7. Merge to main (triggers auto-deployment)
 
 ## Quick Start
 
