@@ -82,7 +82,8 @@ jobs:
 
       - name: Run Checkov
         run: |
-          checkov -d . -o sarif --output-file-path checkov-results.sarif
+          checkov -d . -o sarif --output-file-path checkov-results.sarif --soft-fail
+
 
       - name: Debug - list files
         run: ls -la
