@@ -76,6 +76,9 @@ jobs:
         with:
           sarif_file: tfsec-results.sarif
           category: tfsec
+          
+      - name: Install Checkov
+        run: pip install checkov     
 
       - name: Run Checkov
         run:
