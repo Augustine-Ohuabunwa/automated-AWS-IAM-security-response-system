@@ -1,10 +1,10 @@
 name: Terraform CI/CD
+env:
+  AWS_REGION: us-east-1
 on:
   push:
     branches:
       - main
-    env:
-      AWS_REGION: us-east-1
   pull_request:
     branches:
       - main
@@ -78,7 +78,7 @@ jobs:
           category: tfsec
 
       - name: Run Checkov
-        runs:
+        run:
           checkov -d . -o sarif --output-file-path checkov-results.sarif
 
       - name: Upload Checkov SARIF results
