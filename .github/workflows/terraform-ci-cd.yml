@@ -81,8 +81,11 @@ jobs:
         run: pip install checkov     
 
       - name: Run Checkov
-        run:
+        run: |
           checkov -d . -o sarif --output-file-path checkov-results.sarif
+
+      - name: Debug - list files
+        run: ls -la
 
       - name: Upload Checkov SARIF results
         uses: github/codeql-action/upload-sarif@v3
