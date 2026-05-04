@@ -79,7 +79,7 @@ jobs:
 
       - name: Run Checkov
         runs:
-        checkov -d . -o sarif --output-file-path checkov-results.sarif
+          checkov -d . -o sarif --output-file-path checkov-results.sarif
 
       - name: Upload Checkov SARIF results
         uses: github/codeql-action/upload-sarif@v3
